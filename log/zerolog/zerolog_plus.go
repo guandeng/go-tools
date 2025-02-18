@@ -10,6 +10,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/natefinch/lumberjack"
 	"github.com/rs/zerolog"
 )
 
@@ -24,6 +25,10 @@ type ZerologFileConfig struct {
 	NameFormat  string        // 日志文件名格式，支持日期占位符，如: app-{date}.log
 	Permissions os.FileMode   // 日志文件权限
 	Level       zerolog.Level // 日志记录级别
+	MaxSize     int           // 每个日志文件的最大大小（MB）
+	MaxBackups  int           // 保留的旧日志文件最大数量
+	MaxAge      int           // 保留的旧日志文件最大天数
+	Compress    bool          // 是否压缩旧日志文件
 }
 
 // ZerologSyslogConfig 远程syslog配置
@@ -41,6 +46,10 @@ var DefaultZerologFileConfig = ZerologFileConfig{
 	NameFormat:  "app-{date}.log",
 	Permissions: 0666,
 	Level:       zerolog.DebugLevel,
+	MaxSize:     100,  // 默认每个文件最大100MB
+	MaxBackups:  30,   // 默认保留30个旧文件
+	MaxAge:      7,    // 默认保留7天
+	Compress:    true, // 默认压缩旧文件
 }
 
 // DefaultZerologSyslogConfig 默认远程syslog配置
@@ -124,13 +133,16 @@ func createFileWriter(config ZerologFileConfig) (io.Writer, error) {
 	fileName := strings.Replace(config.NameFormat, "{date}", currentTime.Format("2006-01-02"), -1)
 	logPath := filepath.Join(config.Path, fileName)
 
-	// 打开日志文件
-	logFile, err := os.OpenFile(logPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, config.Permissions)
-	if err != nil {
-		return nil, fmt.Errorf("打开日志文件失败: %v", err)
+	// 使用 lumberjack 进行日志分割
+	logger := &lumberjack.Logger{
+		Filename:   logPath,
+		MaxSize:    config.MaxSize, // MB
+		MaxBackups: config.MaxBackups,
+		MaxAge:     config.MaxAge, // days
+		Compress:   config.Compress,
 	}
 
-	return logFile, nil
+	return logger, nil
 }
 
 // createSyslogWriter 创建远程syslog writer
