@@ -40,7 +40,6 @@ var DefaultZapFileConfig = ZapFileConfig{
 	Path:        "data/logs",
 	NameFormat:  "app-{date}.log",
 	Permissions: 0666,
-	Level:       zapcore.DebugLevel,
 }
 
 // DefaultZapSyslogConfig 默认远程syslog配置
