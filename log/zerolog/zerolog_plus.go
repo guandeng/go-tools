@@ -21,14 +21,13 @@ var (
 
 // ZerologFileConfig 文件日志配置
 type ZerologFileConfig struct {
-	Path        string        // 日志文件路径
-	NameFormat  string        // 日志文件名格式，支持日期占位符，如: app-{date}.log
-	Permissions os.FileMode   // 日志文件权限
-	Level       zerolog.Level // 日志记录级别
-	MaxSize     int           // 每个日志文件的最大大小（MB）
-	MaxBackups  int           // 保留的旧日志文件最大数量
-	MaxAge      int           // 保留的旧日志文件最大天数
-	Compress    bool          // 是否压缩旧日志文件
+	Path        string      // 日志文件路径
+	NameFormat  string      // 日志文件名格式，支持日期占位符，如: app-{date}.log
+	Permissions os.FileMode // 日志文件权限
+	MaxSize     int         // 每个日志文件的最大大小（MB）
+	MaxBackups  int         // 保留的旧日志文件最大数量
+	MaxAge      int         // 保留的旧日志文件最大天数
+	Compress    bool        // 是否压缩旧日志文件
 }
 
 // ZerologSyslogConfig 远程syslog配置
@@ -45,7 +44,6 @@ var DefaultZerologFileConfig = ZerologFileConfig{
 	Path:        "data/logs",
 	NameFormat:  "app-{date}.log",
 	Permissions: 0666,
-	Level:       zerolog.DebugLevel,
 	MaxSize:     100,  // 默认每个文件最大100MB
 	MaxBackups:  30,   // 默认保留30个旧文件
 	MaxAge:      7,    // 默认保留7天
